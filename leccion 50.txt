@@ -1,0 +1,43 @@
+HYPERLEDGER EXPLORER
+
+docker stop $(docker ps -a -q)
+docker rm $(docker ps -a -q)
+docker volume prune
+docker network prune
+
+cd ~/fabric-samples/test-network
+./network.sh down
+./network.sh up
+./network.sh createChannel
+./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go -ccl go
+
+wget https://raw.githubusercontent.com/hyperledger/blockchain-explorer/main/examples/net1/config.json
+wget https://raw.githubusercontent.com/hyperledger/blockchain-explorer/main/examples/net1/connection-profile/test-network.json -P connection-profile
+wget https://raw.githubusercontent.com/hyperledger/blockchain-explorer/main/docker-compose.yaml
+
+vi docker-compose.yaml 
+
+Cambiar dentro del docker-compose la test-net -> fabric_test   
+
+networks:
+  mynetwork.com:
+    external:
+      name: fabric_test
+
+Y poner la ruta a la carpeta de organizations "./organizations" en docker-compose
+
+
+      - ./config.json:/opt/explorer/app/platform/fabric/config.json
+      - ./connection-profile:/opt/explorer/app/platform/fabric/connection-profile
+      - ./organizations:/tmp/crypto
+
+docker-compose up -d
+
+localhost:8080
+IP PÚBLICA + PUERTO 8080
+"id": "exploreradmin",
+"password": "exploreradminpw"
+
+
+
+Hacer alguna transacción y comprobar los chaincodes, transacciones, canales, etc
